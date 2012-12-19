@@ -1,0 +1,25 @@
+================================
+fauxzoo -- mock of the kazoo API
+================================
+
+fauxzoo is provided to make it easier to test applications written
+using kazoo.
+
+The zk.fauxzoo package provides a mock that can be used to
+temporarily replace some of the kazoo APIs with APIs that use an
+in-memory ZooKeeper tree, rather than a real ZooKeeper server::
+
+    >>> import zk.fauxzoo, zk.kazoo
+
+    >>> faux = zk.fauxzoo.Faux(server='zookeeper.example.com', tree='/foo')
+
+Call start and stop methods to install and uninstall the mock:
+
+    >>> faux.start()
+    >>> zk = KazooClient('zookeeper.example.com')
+    >>> zk.start()
+    >>> print zk.get_children('/')
+    ['foo']
+    >>> zk.stop()
+    >>> faux.stop()
+
