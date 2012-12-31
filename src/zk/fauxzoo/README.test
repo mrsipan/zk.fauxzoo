@@ -25,7 +25,7 @@ Call start and stop methods to install and uninstall the mock:
     u'/my/favorite/node'
     >>> print zk.get_children('/my/favorite')
     [u'node']
-    >>> data, stat = zk.get("/my/favorite")
+    >>> data, stat = zk.get("/my/favorite/node")
     >>> print("Version: %s, data: %s" % (stat.version, data.decode("utf-8")))
     Version: 0, data: foo
     >>> zk.stop()
