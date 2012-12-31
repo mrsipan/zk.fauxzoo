@@ -57,10 +57,10 @@ class KazooClient:
             node.children[name] = newnode = Node(data)
             # newnode.acl = acl
             # newnode.flags = flags
-            # node.children_changed(zookeeper.CONNECTED_STATE, base)
+            # node.children_changed(kazoo.protocol.states.KazooState.CONNECTED, base)
 
             # for h, w in self.exists_watchers.pop(path, ()):
-            #     w(h, zookeeper.CREATED_EVENT, zookeeper.CONNECTED_STATE, path)
+            #     w(h, zookeeper.CREATED_EVENT, kazoo.protocol.states.KazooState.CONNECTED, path)
 
             # if flags & zookeeper.EPHEMERAL:
             #     self.sessions[handle].add(path)
@@ -140,6 +140,21 @@ class KazooClient:
                 if watch:
                     self.exists_watchers[path] += ((handle, watch), )
                 return None
+   
+    def set(self, path, data, version=-1, async=False):
+        with self.lock:
+            node = self._traverse(path)
+            # for p in node.acl:
+            #     if not (p['perms'] & zookeeper.PERM_WRITE):
+            #         raise zookeeper.NoAuthException('not authenticated')
+            if version != -1 and node.version != version:
+                raise zookeeper.BadVersionException('bad version')
+            node.data = data
+            node.changed(kazoo.protocol.states.KazooState.CONNECTED, path)
+            if async:
+                return node.meta()
+            else:
+                return 0
 
 
     def _traverse(self, path):
@@ -234,7 +249,7 @@ class Node:
             w(h, zookeeper.CHILD_EVENT, state, path)
         self.cversion += 1
 
-    def changed(self, handle, state, path):
+    def changed(self, state, path):
         watchers = self.watchers
         self.watchers = ()
         for h, w in watchers:
