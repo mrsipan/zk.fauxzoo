@@ -16,10 +16,18 @@ in-memory ZooKeeper tree, rather than a real ZooKeeper server::
 Call start and stop methods to install and uninstall the mock:
 
     >>> faux.start()
-    >>> zk = kazoo.client.KazooClient('zookeeper.example.com')
+    >>> zk = kazoo.client.KazooClient('zookeeper.example.com:2181')
     >>> zk.start()
     >>> print zk.get_children('/')
     []
+    >>> zk.ensure_path("/my/favorite")
+    >>> zk.create("/my/favorite/node", "foo")
+    u'/my/favorite/node'
+    >>> print zk.get_children('/my/favorite')
+    [u'node']
+    >>> data, stat = zk.get("/my/favorite")
+    >>> print("Version: %s, data: %s" % (stat.version, data.decode("utf-8")))
+    Version: 0, data: foo
     >>> zk.stop()
     >>> faux.stop()
 
