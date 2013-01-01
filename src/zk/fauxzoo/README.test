@@ -9,17 +9,47 @@ The zk.fauxzoo package provides a mock that can be used to
 temporarily replace some of the kazoo APIs with APIs that use an
 in-memory ZooKeeper tree, rather than a real ZooKeeper server::
 
-    >>> import zk.fauxzoo, zk.kazoo
+    >>> import zk.fauxzoo, kazoo.client
 
-    >>> faux = zk.fauxzoo.Faux(server='zookeeper.example.com', tree='/foo')
+    >>> faux = zk.fauxzoo.Faux(server='zookeeper.example.com')
 
 Call start and stop methods to install and uninstall the mock:
 
     >>> faux.start()
-    >>> zk = KazooClient('zookeeper.example.com')
+
+Then we can use the kazoo Client API as usual.  We'll actually be
+using a fauxzoo-provided client mock:
+
+    >>> zk = kazoo.client.KazooClient('zookeeper.example.com:2181')
     >>> zk.start()
     >>> print zk.get_children('/')
-    ['foo']
+    []
+
+Noe, we'll do some basic crud methods from the kazoo documentation:
+
+    >>> zk.ensure_path("/my/favorite")
+    >>> zk.create("/my/favorite/node", "foo")
+    u'/my/favorite/node'
+    >>> print zk.get_children('/my/favorite')
+    [u'node']
+    >>> data, stat = zk.get("/my/favorite/node")
+    >>> print("Version: %s, data: %s" % (stat.version, data.decode("utf-8")))
+    Version: 0, data: foo
+
+To update data, you can call set:
+
+    >>> state = zk.set("/my/favorite/node", "some data")
+    >>> data, stat = zk.get("/my/favorite/node")
+    >>> print("Version: %s, data: %s" % (stat.version, data.decode("utf-8")))
+    Version: 1, data: some data
+
+
+
+
+
+
+Now, we'll stop out client and uninstall our mock:
+
     >>> zk.stop()
     >>> faux.stop()
 

@@ -14,7 +14,7 @@
 name, version = 'zk.fauxzoo', '0'
 
 install_requires = ['setuptools', 'kazoo']
-extras_require = dict(test=['zope.testing'])
+extras_require = dict(test=['zope.testing', 'mock'])
 
 entry_points = """
 """
